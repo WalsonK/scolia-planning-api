@@ -13,7 +13,7 @@ class Rustml:
         if sys.platform == "win32":
             lib_path = os.path.join(current_dir, "librustml.dll")
         elif sys.platform == "darwin":
-            lib_path = os.path.join(current_dir, "librustml.dylib")
+            lib_path = os.path.join(current_dir, "librustlib.dylib")
         elif sys.platform == "linux":
             lib_path = os.path.join(current_dir, "librustml.so")
         else:
