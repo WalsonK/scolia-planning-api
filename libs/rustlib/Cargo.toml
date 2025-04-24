@@ -8,3 +8,4 @@ name = "rustlib"
 crate-type = ["cdylib"]
 
 [dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
