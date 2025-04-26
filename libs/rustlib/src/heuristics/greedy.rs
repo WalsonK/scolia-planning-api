@@ -7,7 +7,7 @@ pub extern "C" fn generate_greedy_planning(
     todo: *const f32, todo_len: i32,
     unavailable: *const f32, unavailable_len: i32,
     unavailable_sub: *const f32, unavailable_sub_len: i32
-) -> (*const i32, i32) {
+) -> *const i32 {
     let all_slots: Vec<i32> = (0..total_slot).collect();
     let all_subjects: Vec<f32> = reconstruct_vec(subjects, subjects_len);
     let hours_todo: Vec<f32> = reconstruct_vec(todo, todo_len);
@@ -41,9 +41,18 @@ pub extern "C" fn generate_greedy_planning(
         }
     }
     let ptr= schedule.as_ptr();
-    let len = schedule.len() as i32;
-    // mem::forget(schedule); to test
-    (ptr,len)
+    mem::forget(schedule);
+    ptr
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn free_greedy_planning(ptr: *const i32) {
+    if ptr.is_null() {
+        return;
+    }
+    unsafe {
+        let _ = Box::from_raw(ptr as *mut i32);
+    }
 }
 
 #[cfg(test)]
@@ -66,7 +75,7 @@ mod tests {
                                      flat.as_ptr(), flat.len() as i32,
                                      length.as_ptr(), length.len() as i32);
 
-        let arr_slice = unsafe { std::slice::from_raw_parts(data.0, data.1 as usize) };
+        let arr_slice = unsafe { std::slice::from_raw_parts(data, 7) };
         let new_planning = arr_slice.iter().map(|&x| x).collect::<Vec<i32>>();
         assert_eq!(planning, new_planning);
     }
