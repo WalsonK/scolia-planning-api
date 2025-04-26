@@ -1,0 +1,36 @@
+{
+    "params" : {
+        "class": "5IABD2",
+        "slots_per_day": 5,
+        "days_per_week": 5,
+        "max_hours_per_week": 35
+    },
+    "subjects": [
+    {
+      "name": "Maths",
+      "teacher": "Mme Dubois",
+      "hours_todo": 6,
+      "hours_total": 15,
+      "unavailable_periods": [0, 10]
+    },
+    {
+      "name": "Français",
+      "teacher": "M. David",
+      "hours_todo": 4.5,
+      "hours_total": 15,
+      "unavailable_periods": [7]
+    },
+    {
+      "name": "Sciences",
+      "teacher": "Mme Bernard",
+      "hours_todo": 3,
+      "hours_total": 15,
+      "unavailable_periods": []
+    }
+  ],
+  "rooms": [
+    {"name": "Salle 1", "capacity": 30},
+    {"name": "Salle 2", "capacity": 30}
+  ]
+}
+

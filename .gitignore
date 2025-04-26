@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+libs/.DS_Store
+.DS_Store
+
+libs/rustlib/.idea
+libs/rustlib/cargo.lock
