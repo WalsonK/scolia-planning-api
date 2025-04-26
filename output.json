@@ -1,0 +1,10 @@
+{
+    "week": [
+        ["Maths", "Maths", "Pause", "Français"], // Lundi
+        [], // Mardi
+        [], // Mercredi
+        [], // Jeudi
+        [],  // Vendredi
+        [] // Samedi
+    ]
+}

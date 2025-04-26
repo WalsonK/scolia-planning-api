@@ -3,13 +3,7 @@
         "class": "5IABD2",
         "slots_per_day": 5,
         "days_per_week": 5,
-        "slot_duration_minutes": 90,
         "max_hours_per_week": 35
-    },
-    "pause_lunch": {
-        "start": "13:00",
-        "end": "14:00",
-        "slot_index": 2
     },
     "subjects": [
     {
@@ -39,3 +33,4 @@
     {"name": "Salle 2", "capacity": 30}
   ]
 }
+
