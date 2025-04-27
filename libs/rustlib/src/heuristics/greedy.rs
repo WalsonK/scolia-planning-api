@@ -11,6 +11,7 @@ pub extern "C" fn generate_greedy_planning(
     let all_slots: Vec<i32> = (0..total_slot).collect();
     let all_subjects: Vec<f32> = reconstruct_vec(subjects, subjects_len);
     let hours_todo: Vec<f32> = reconstruct_vec(todo, todo_len);
+    let max_slot = max_hours as f32 / (slot_minutes / 60) as f32;
 
     let flat_unavailability = reconstruct_vec(unavailable, unavailable_len);
     let subarray = reconstruct_vec(unavailable_sub, unavailable_sub_len)
@@ -35,6 +36,10 @@ pub extern "C" fn generate_greedy_planning(
             }
             schedule[slot] = subject_id as i32;
             count += 1;
+
+            if count as f32 >= max_slot {
+                break;
+            }
             if count as f32 == nb_slot {
                 break;
             }
@@ -61,15 +66,15 @@ mod tests {
 
     #[test]
     fn generate_planning_test() {
-        let planning = vec![0, -1, 0, 0, 0, 0, 0];
+        let planning = vec![0, -1, 0, 0, -1, -1, -1];
 
         let subjects = vec![0.0];
-        let todo = vec![8.0];
+        let todo = vec![4.0];
         let unavailable = vec![vec![1.0]];
         let length: Vec<f32> = unavailable.iter().map(|inner_vec| inner_vec.len() as f32).collect();
         let flat: Vec<f32> = unavailable.into_iter().flatten().collect();
 
-        let data = generate_greedy_planning(7, 35, 90,
+        let data = generate_greedy_planning(7, 3, 90,
                                      subjects.as_ptr(), subjects.len() as i32,
                                      todo.as_ptr(), todo.len() as i32,
                                      flat.as_ptr(), flat.len() as i32,
@@ -77,6 +82,7 @@ mod tests {
 
         let arr_slice = unsafe { std::slice::from_raw_parts(data, 7) };
         let new_planning = arr_slice.iter().map(|&x| x).collect::<Vec<i32>>();
+        free_greedy_planning(data);
         assert_eq!(planning, new_planning);
     }
 }
