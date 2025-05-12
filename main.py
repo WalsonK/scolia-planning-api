@@ -1,16 +1,26 @@
 from typing import Union, List
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from libs.rustml_wrapper import Rustml 
 import basic_function as fn
-from models import PlanningData
+from models import PlanningData, Subject
 
 
 app = FastAPI()
 rustml = Rustml()
 
 data = fn.load_data()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 @app.get("/")
 def read_root():
@@ -80,6 +90,7 @@ def generate_greedy_planning(planning_data: PlanningData):
     """
     # Prepare data for Rust function
     subject_dict = {index: subject for index, subject in enumerate(planning_data.subjects)}
+    subject_dict[-1] = Subject.create_empty(Subject)
 
     total_slots = planning_data.params.slots_per_day * planning_data.params.days_per_week
     max_hours = planning_data.params.max_hours_per_week
@@ -106,3 +117,7 @@ def generate_greedy_planning(planning_data: PlanningData):
         "message": "Planning generated successfully",
         "planning": resultat,
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=3000)

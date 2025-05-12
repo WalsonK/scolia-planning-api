@@ -8,6 +8,9 @@ class Subject(BaseModel):
     hours_total: float
     unavailable_periods: List[int]
 
+    def create_empty(self):
+        return Subject(name="empty", teacher="", hours_todo=0.0, hours_total=0.0, unavailable_periods=[])
+
 class Room(BaseModel):
     name: str
     capacity: int
