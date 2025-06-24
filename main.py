@@ -118,6 +118,25 @@ def generate_greedy_planning(planning_data: PlanningData):
         "planning": resultat,
     }
 
+@app.get("/get_planning/{week_number}/{class_name}")
+def get_planning(week_number: int, class_name: str):
+    """
+    Endpoint to get the current planning.
+    """
+    # Here you would typically retrieve the planning from a database or a file.
+    # For this example, we will return a static response.
+    return {
+        "message": f"Planning for week {week_number} and class {class_name} retrieved successfully",
+        "planning": [
+            ['Mathématiques', 'Physique', 'empty', 'Mathématiques', 'Chimie', 'empty'],
+            ['Physique', 'Mathématiques', 'Chimie', 'empty', 'Physique', 'Mathématiques'],
+            ['Chimie', 'empty', 'Mathématiques', 'Physique', 'empty', 'Chimie'],
+            ['empty', 'Chimie', 'Physique', 'empty', 'Mathématiques', 'Physique'],
+            ['Mathématiques', 'empty', 'empty', 'Chimie', 'Physique', 'empty'],
+            ['empty', 'Physique', 'Mathématiques', 'empty', 'empty', 'Chimie']
+        ]
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=3000)
