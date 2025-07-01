@@ -1,0 +1,38 @@
+
+services:
+  planning-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      # Optionnel: monter les données en volume pour les modifications en temps réel
+      - ./datas.json:/app/datas.json
+      - ./output.json:/app/output.json
+    environment:
+      - PYTHONPATH=/app
+      - RUST_LOG=info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Service optionnel pour le développement avec auto-reload
+  planning-api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONPATH=/app
+      - RUST_LOG=debug
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    profiles:
+      - dev
