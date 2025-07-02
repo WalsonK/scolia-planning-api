@@ -1,0 +1,27 @@
+# Ignorer les fichiers/dossiers Python inutiles
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorer les fichiers de configuration locaux
+.env
+*.env
+
+# Ignorer les fichiers/dossiers liés à Git
+.git
+.gitignore
+
+# Ignorer les fichiers de logs
+*.log
+
+# Ignorer les dossiers spécifiques à l'IDE
+.vscode/
+.idea/
+
+# Ignorer les fichiers temporaires
+*.swp
+*.tmp
+
+# Ignorer les dossiers de tests ou de données locales
+tests/
+data/
