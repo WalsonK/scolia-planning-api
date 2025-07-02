@@ -1,49 +1,27 @@
-# Git
+# Ignorer les fichiers/dossiers Python inutiles
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorer les fichiers de configuration locaux
+.env
+*.env
+
+# Ignorer les fichiers/dossiers liés à Git
 .git
 .gitignore
 
-# Documentation
-*.md
-!README.md
-
-# Cache Python
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-env
-venv
-.venv
-pip-log.txt
-pip-delete-this-directory.txt
-.pytest_cache
-
-# Cache Rust
-libs/rustlib/target
-!libs/rustlib/target/release/*.so
-!libs/rustlib/target/release/*.dylib
-!libs/rustlib/target/release/*.dll
-
-# IDEs
-.vscode
-.idea
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Docker
-Dockerfile*
-docker-compose*
-.dockerignore
-
-# Logs
+# Ignorer les fichiers de logs
 *.log
 
-# Temporary files
+# Ignorer les dossiers spécifiques à l'IDE
+.vscode/
+.idea/
+
+# Ignorer les fichiers temporaires
+*.swp
 *.tmp
-*.temp
+
+# Ignorer les dossiers de tests ou de données locales
+tests/
+data/
