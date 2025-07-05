@@ -1,0 +1,12 @@
+[package]
+name = "rustlib"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "rustlib"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
