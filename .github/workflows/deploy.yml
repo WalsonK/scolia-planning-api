@@ -1,0 +1,54 @@
+name: Deploy to VPS
+
+# Déclenche le workflow à chaque push sur la branche 'main'
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    # Le type de machine virtuelle sur lequel le job va s'exécuter
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1: Récupération de votre code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Étape 2: Configuration de la connexion SSH
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+
+      # Étape 3: Ajout de l'IP du VPS aux hôtes connus
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      # Étape 4: Exécution du script de déploiement sur le VPS
+      - name: Deploy to VPS
+        run: |
+          # Commande SSH pour se connecter et exécuter le script de déploiement
+          ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
+            # Se déplace dans le répertoire du projet
+            # MODIFIEZ 'VOTRE_PROJET' avec le nom de votre dossier projet sur le VPS
+            cd ~/VOTRE_PROJET
+
+            # Récupère les dernières modifications de la branche main
+            echo "Pulling latest changes..."
+            git pull origin main
+
+            # Reconstruit et redémarre les conteneurs en arrière-plan
+            echo "Building and restarting containers..."
+            docker-compose up -d --build
+
+            # Nettoie les anciennes images Docker non utilisées pour libérer de l'espace
+            echo "Pruning old Docker images..."
+            docker image prune -f
+            
+            echo "Deployment finished successfully!"
+          EOF
