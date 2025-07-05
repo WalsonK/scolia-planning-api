@@ -44,7 +44,7 @@ jobs:
 
             # Reconstruit et redémarre les conteneurs en arrière-plan
             echo "Building and restarting containers..."
-            docker-compose up -d --build
+            docker compose up -d --build
 
             # Nettoie les anciennes images Docker non utilisées pour libérer de l'espace
             echo "Pruning old Docker images..."
