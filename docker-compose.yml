@@ -1,0 +1,29 @@
+services:
+  # Service n°1 : Le compilateur Rust
+  rust-builder:
+    # Construit l'image à partir du dossier rust_compiler
+    build: ./scolia-metalibrary-calendar
+    container_name: rust_builder
+    # Monte le volume nommé "rust-libs-volume" dans le dossier /shared_libs du conteneur
+    # La commande CMD du Dockerfile Rust copiera le .so ici.
+    volumes:
+      - rust-libs-volume:/shared_libs
+
+  # Service n°2 : L'API Python
+  api:
+    # Construit l'image à partir du dossier python_api
+    build: ./planning-api
+    container_name: python_api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Monte le code source Python dans /app
+      - ./planning-api/app:/app
+      # Monte le volume avec la lib Rust dans un sous-dossier /app/libs
+      - rust-libs-volume:/app/libs
+    depends_on:
+      rust-builder:
+        condition: service_completed_successfully
+
+volumes:
+  rust-libs-volume:
