@@ -36,7 +36,7 @@ jobs:
           ssh ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'EOF'
             # Se déplace dans le répertoire du projet
             # MODIFIEZ 'VOTRE_PROJET' avec le nom de votre dossier projet sur le VPS
-            cd ~/VOTRE_PROJET
+            cd ~/scolia-planning-api
 
             # Récupère les dernières modifications de la branche main
             echo "Pulling latest changes..."
