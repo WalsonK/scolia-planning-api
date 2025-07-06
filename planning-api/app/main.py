@@ -1,11 +1,14 @@
 from typing import Union, List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from libs.rustml_wrapper import Rustml 
-import basic_function as fn
-from models import PlanningData, Subject
+import pandas as pd
+from .libs.rustml_wrapper import Rustml 
+from . import basic_function as fn
+from .models import PlanningData, Subject
+from io import BytesIO, StringIO
+import os
 
 
 app = FastAPI()
@@ -137,6 +140,155 @@ def get_planning(week_number: int, class_name: str):
         ]
     }
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=3000)
+@app.post("/send_curriculum")
+async def send_curriculum(
+    file: UploadFile = File(...), # Le fichier, comme avant [2]
+    filiere: str = Form(...),    # Champ 'filiere' du formulaire [0, 4]
+    niveau: str = Form(...),     # Champ 'niveau' du formulaire [0, 4]
+    annee: str = Form(...),      # Champ 'annee' du formulaire [0, 4]
+    dateFormat: str = Form(...), # Champ 'dateFormat' du formulaire [0, 4]
+    separator: str = Form(...)   # Champ 'separator' du formulaire [0, 4]
+    ):
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Aucun fichier n'a été envoyé.")
+    
+    file_extension = os.path.splitext(file.filename)[1].lower()
+
+    try:
+        contents = await file.read() # Lecture asynchrone du contenu du fichier [1]
+        df = pd.DataFrame() # Initialiser df pour éviter ReferenceError en cas d'erreur
+        message = ""
+
+        if file_extension in [".xlsx", ".xls"]:
+            # Process Excel file
+            df = pd.read_excel(BytesIO(contents))
+            print(f"Fichier Excel traité avec {len(df)} lignes")
+            
+            # Traitement des données
+            teachers_data = fn.process_curriculum_data(df)
+            
+            # Génération des résumés pour chaque enseignant
+            teacher_summaries = fn.generate_teacher_summary(teachers_data, niveau)
+            print(teacher_summaries)
+            
+            """# Préparation des données pour l'envoi d'emails
+            email_results = []
+            for teacher_name, summary in teacher_summaries.items():
+                # Pour le moment, on stocke les résumés sans envoyer d'emails
+                # L'envoi d'email nécessiterait une configuration SMTP
+                email_results.append({
+                    "teacher": teacher_name,
+                    "total_hours": teachers_data[teacher_name]['total_hours'],
+                    "subjects_count": len(teachers_data[teacher_name]['subjects']),
+                    "summary": summary
+                })"""
+            
+            message = f"La maquette a été importée avec succès! {len(teachers_data)} enseignants identifiés."
+            
+            return {"message": message}
+        
+        """elif file_extension == ".csv":
+            # Process CSV file
+            df = pd.read_csv(StringIO(contents.decode('utf-8')), separator=separator)
+            print(f"Fichier CSV traité avec {len(df)} lignes")
+            
+            # Traitement des données (même logique que pour Excel)
+            teachers_data = fn.process_curriculum_data(df)
+            teacher_summaries = fn.generate_teacher_summary(teachers_data)
+            
+            email_results = []
+            for teacher_name, summary in teacher_summaries.items():
+                email_results.append({
+                    "teacher": teacher_name,
+                    "total_hours": teachers_data[teacher_name]['total_hours'],
+                    "subjects_count": len(teachers_data[teacher_name]['subjects']),
+                    "summary": summary
+                })
+            
+            message = f"Curriculum CSV traité avec succès. {len(teachers_data)} enseignants identifiés."
+            
+            return {
+                "message": message,
+                "filiere": filiere,
+                "niveau": niveau,
+                "annee": annee,
+                "teachers_count": len(teachers_data),
+                "teachers_data": teachers_data,
+                "email_summaries": email_results
+            }
+        
+        else:
+            raise HTTPException(status_code=400, detail="Format de fichier non supporté. Utilisez .xlsx, .xls ou .csv")
+        """
+    except Exception as e:
+        print(f"Erreur lors du traitement du fichier: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors du traitement du fichier: {str(e)}")
+    
+@app.post("/send_teacher_emails")
+async def send_teacher_emails(
+    teacher_emails: dict = Form(...),  # Dict mapping teacher names to email addresses
+    smtp_server: str = Form("smtp.gmail.com"),
+    smtp_port: int = Form(587),
+    sender_email: str = Form(...),
+    sender_password: str = Form(...),
+    teachers_data: dict = Form(...)  # Les données des enseignants depuis send_curriculum
+):
+    """
+    Envoie des emails aux enseignants avec leurs résumés d'heures.
+    
+    Args:
+        teacher_emails: Dictionnaire associant nom d'enseignant à email
+        smtp_server: Serveur SMTP
+        smtp_port: Port SMTP
+        sender_email: Email expéditeur
+        sender_password: Mot de passe expéditeur
+        teachers_data: Données des enseignants
+    """
+    try:
+        # Génération des résumés
+        teacher_summaries = fn.generate_teacher_summary(teachers_data)
+        
+        # Envoi des emails
+        email_results = []
+        for teacher_name, summary in teacher_summaries.items():
+            if teacher_name in teacher_emails:
+                success = fn.send_email_to_teacher(
+                    teacher_emails[teacher_name],
+                    teacher_name,
+                    summary,
+                    smtp_server,
+                    smtp_port,
+                    sender_email,
+                    sender_password
+                )
+                email_results.append({
+                    "teacher": teacher_name,
+                    "email": teacher_emails[teacher_name],
+                    "sent": success
+                })
+            else:
+                email_results.append({
+                    "teacher": teacher_name,
+                    "email": "Non fourni",
+                    "sent": False,
+                    "error": "Email non fourni"
+                })
+        
+        sent_count = sum(1 for result in email_results if result["sent"])
+        
+        return {
+            "message": f"Emails envoyés à {sent_count}/{len(email_results)} enseignants",
+            "results": email_results
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'envoi des emails: {str(e)}")
+
+@app.get("/teacher_summary/{teacher_name}")
+def get_teacher_summary(teacher_name: str):
+    """
+    Récupère le résumé d'un enseignant spécifique.
+    Note: Cette route nécessite que les données aient été préalablement traitées.
+    """
+    # Cette route pourrait être améliorée en stockant les données dans une base de données
+    return {"message": "Fonctionnalité à implémenter avec stockage des données"}
