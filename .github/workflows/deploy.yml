@@ -45,12 +45,12 @@ jobs:
             echo " Creating .env file from secrets"
             # Crée le fichier .env en utilisant les secrets de GitHub
             > planning-api/.env 
-            echo "# Fichier généré automatiquement par GitHub Actions" >> .env
-            echo "POSTGRES_SERVER=db" >> .env
-            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-            echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}" >> .env
+            echo "# Fichier généré automatiquement par GitHub Actions" >> planning-api/.env
+            echo "POSTGRES_SERVER=db" >> planning-api/.env
+            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> planning-api/.env
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> planning-api/.env
+            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> planning-api/.env
+            echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}" >> planning-api/.env
             
             # Reconstruit et redémarre les conteneurs en arrière-plan
             echo "Building and restarting containers..."
