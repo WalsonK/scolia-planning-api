@@ -21,9 +21,16 @@ services:
       - ./planning-api/app:/app
       # Monte le volume avec la lib Rust dans un sous-dossier /app/libs
       - rust-libs-volume:/app/libs
+    networks:
+      - shared_db_network
     depends_on:
       rust-builder:
         condition: service_completed_successfully
 
 volumes:
   rust-libs-volume:
+
+networks:
+  shared_db_network:
+    name: shared_db_network
+    external: true
