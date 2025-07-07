@@ -42,6 +42,17 @@ jobs:
             echo "Pulling latest changes..."
             git pull origin main
 
+            echo " Creating .env file from secrets"
+            # Crée le fichier .env en utilisant les secrets de GitHub
+            cat > .env << EOL
+            # Ce fichier est généré automatiquement par GitHub Actions
+            POSTGRES_SERVER=db
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}
+
+
             # Reconstruit et redémarre les conteneurs en arrière-plan
             echo "Building and restarting containers..."
             docker compose up -d --build

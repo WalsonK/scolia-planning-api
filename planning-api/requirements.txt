@@ -4,3 +4,6 @@ pytest>=7.4.3
 numpy>=1.25.2
 pydantic>=2.5.0
 python-multipart>=0.0.6
+sqlalchemy
+pydantic-settings
+psycopg2-binary
