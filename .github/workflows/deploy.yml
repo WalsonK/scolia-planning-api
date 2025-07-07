@@ -44,16 +44,14 @@ jobs:
 
             echo " Creating .env file from secrets"
             # Crée le fichier .env en utilisant les secrets de GitHub
-            cat > .env << EOL
-            # Ce fichier est généré automatiquement par GitHub Actions
-            POSTGRES_SERVER=db
-            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-            DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}
-            EOL
-
-
+            > .env 
+            echo "# Fichier généré automatiquement par GitHub Actions" >> .env
+            echo "POSTGRES_SERVER=db" >> .env
+            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+            echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}" >> .env
+            
             # Reconstruit et redémarre les conteneurs en arrière-plan
             echo "Building and restarting containers..."
             docker compose up -d --build
