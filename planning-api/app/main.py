@@ -4,10 +4,10 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from .libs.rustml_wrapper import Rustml 
-import basic_function as fn
-from .db.session import * 
-from models import PlanningData, Subject
+from .libs.rustml_wrapper import Rustml
+from .db.session import *
+from . import basic_function as fn, models
+from . import basic_function as fn 
 
 
 app = FastAPI()
@@ -96,7 +96,7 @@ def add_unvailable(name: str = None, slots: List[int] = []):
 
 
 @app.post("/generate_planning")
-def generate_greedy_planning(planning_data: PlanningData):
+def generate_greedy_planning(planning_data: models.PlanningData):
     """
     Endpoint to generate a greedy planning.
     - planning_data: JSON object containing :
@@ -106,7 +106,7 @@ def generate_greedy_planning(planning_data: PlanningData):
     """
     # Prepare data for Rust function
     subject_dict = {index: subject for index, subject in enumerate(planning_data.subjects)}
-    subject_dict[-1] = Subject.create_empty(Subject)
+    subject_dict[-1] = models.Subject.create_empty(models.Subject)
 
     total_slots = planning_data.params.slots_per_day * planning_data.params.days_per_week
     max_hours = planning_data.params.max_hours_per_week
