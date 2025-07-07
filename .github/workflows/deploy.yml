@@ -44,7 +44,7 @@ jobs:
 
             echo " Creating .env file from secrets"
             # Crée le fichier .env en utilisant les secrets de GitHub
-            > .env 
+            > planning-api/.env 
             echo "# Fichier généré automatiquement par GitHub Actions" >> .env
             echo "POSTGRES_SERVER=db" >> .env
             echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
