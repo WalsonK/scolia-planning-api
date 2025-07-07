@@ -151,7 +151,3 @@ def get_planning(week_number: int, class_name: str):
             ['empty', 'Physique', 'Mathématiques', 'empty', 'empty', 'Chimie']
         ]
     }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=3000)
