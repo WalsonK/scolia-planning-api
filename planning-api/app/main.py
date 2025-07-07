@@ -1,10 +1,12 @@
 from typing import Union, List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
-from libs.rustml_wrapper import Rustml 
+from .libs.rustml_wrapper import Rustml 
 import basic_function as fn
+from .db.session import * 
 from models import PlanningData, Subject
 
 
@@ -26,6 +28,20 @@ app.add_middleware(
 def read_root():
     return {"Hello": "Hello World"}
 
+@app.get("/teachers")
+def get_teachers(db: Session = Depends(get_db)):
+    datas = fn.get_teachers(db)
+    return {
+        "teachers": [
+            {
+                "first_name": teacher.first_name,
+                "last_name": teacher.last_name,
+                "email": teacher.email
+            }
+            for teacher in datas
+        ],
+        "data": datas
+    }
 
 @app.get("/info")
 def read_info(category: str = None, name: str = None):
