@@ -1,3 +1,4 @@
+import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -14,7 +15,7 @@ class Settings(BaseSettings):
 
     class Config:
         # Spécifie le fichier .env à charger
-        env_file = ".env"
+        env_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
         # Permet de ne pas être sensible à la casse pour les variables d'env
         case_sensitive = True
 
