@@ -13,9 +13,9 @@ services:
   api:
     # Construit l'image à partir du dossier python_api
     build: ./planning-api
-    container_name: python_api
+    container_name: planning_api
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8002:8002"
     volumes:
       # Monte le code source Python dans /app
       - ./planning-api/app:/app
