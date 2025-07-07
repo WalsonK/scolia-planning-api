@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from sqlalchemy.orm import Session
-import models
+from . import models
 
 def load_data():
     """
