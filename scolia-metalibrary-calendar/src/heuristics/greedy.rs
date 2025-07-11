@@ -1,5 +1,5 @@
 use std::mem;
-use crate::basic_function::{reconstruct_vec, reconstruct_subarray};
+use crate::basic_function::{reconstruct_vec, reconstruct_subarray, free_planning};
 #[unsafe(no_mangle)]
 pub extern "C" fn generate_greedy_planning(
     total_slot: i32, max_hours: i32, slot_minutes: i32,
@@ -50,16 +50,6 @@ pub extern "C" fn generate_greedy_planning(
     ptr
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn free_greedy_planning(ptr: *const i32) {
-    if ptr.is_null() {
-        return;
-    }
-    unsafe {
-        let _ = Box::from_raw(ptr as *mut i32);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -82,7 +72,7 @@ mod tests {
 
         let arr_slice = unsafe { std::slice::from_raw_parts(data, 7) };
         let new_planning = arr_slice.iter().map(|&x| x).collect::<Vec<i32>>();
-        free_greedy_planning(data);
+        free_planning(data);
         assert_eq!(planning, new_planning);
     }
 }
