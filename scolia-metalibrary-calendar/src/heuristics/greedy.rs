@@ -8,7 +8,6 @@ pub extern "C" fn generate_greedy_planning(
     unavailable: *const f32, unavailable_len: i32,
     unavailable_sub: *const f32, unavailable_sub_len: i32
 ) -> *const i32 {
-    let all_slots: Vec<i32> = (0..total_slot).collect();
     let all_subjects: Vec<f32> = reconstruct_vec(subjects, subjects_len);
     let hours_todo: Vec<f32> = reconstruct_vec(todo, todo_len);
     let max_slot = max_hours as f32 / (slot_minutes / 60) as f32;
@@ -20,15 +19,31 @@ pub extern "C" fn generate_greedy_planning(
 
     let mut schedule: Vec<i32> = vec![-1; total_slot as usize];
 
-    for subject_id in all_subjects.iter().map(|&x| x as usize) {
-        let nb_slot: f32 = hours_todo[subject_id] / (slot_minutes / 60) as f32;
+    schedule = greedy_schedule(
+        &all_subjects, &hours_todo,
+        slot_minutes, total_slot, max_slot,
+        &mut schedule, &all_unavailability);
+
+    let ptr= schedule.as_ptr();
+    mem::forget(schedule);
+    ptr
+}
+
+pub fn greedy_schedule(
+    subjects: &Vec<f32>,todos: &Vec<f32>,
+    slot_minutes: i32, total_slot: i32, max_slot: f32,
+    schedule: &mut Vec<i32>, unavailability: &Vec<Vec<f32>>
+) -> Vec<i32> {
+    let all_slots: Vec<i32> = (0..total_slot).collect();
+    for subject_id in subjects.iter().map(|&x| x as usize) {
+        let nb_slot: f32 = todos[subject_id] / (slot_minutes / 60) as f32;
         let mut count: i32 = 0;
 
         for slot in all_slots.iter().map(|&x| x as usize) {
             if schedule[slot] != -1 {
                 continue;
             }
-            if let Some(inner_vec) = all_unavailability.get(subject_id) {
+            if let Some(inner_vec) = unavailability.get(subject_id) {
                 let slot_unavailable = slot as f32;
                 if inner_vec.contains(&slot_unavailable) {
                     continue;
@@ -45,9 +60,7 @@ pub extern "C" fn generate_greedy_planning(
             }
         }
     }
-    let ptr= schedule.as_ptr();
-    mem::forget(schedule);
-    ptr
+    schedule.clone()
 }
 
 #[cfg(test)]

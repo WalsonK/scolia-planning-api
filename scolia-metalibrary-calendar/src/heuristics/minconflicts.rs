@@ -4,7 +4,7 @@ use crate::basic_function::{reconstruct_subarray, reconstruct_vec};
 
 #[unsafe(no_mangle)]
 pub extern "C" fn min_conflicts_planning(
-    total_slot: i32, max_hours: i32, slot_minutes: i32,
+    total_slot: i32, slot_minutes: i32,
     subjects: *const f32, subjects_len: i32,
     todo: *const f32, todo_len: i32,
     unavailable: *const f32, unavailable_len: i32,
@@ -148,7 +148,7 @@ mod tests {
         let length: Vec<f32> = unavailable.iter().map(|inner_vec| inner_vec.len() as f32).collect();
         let flat: Vec<f32> = unavailable.into_iter().flatten().collect();
 
-        let data = min_conflicts_planning(7, 3, 90,
+        let data = min_conflicts_planning(7, 90,
                                             subjects.as_ptr(), subjects.len() as i32,
                                             todo.as_ptr(), todo.len() as i32,
                                             flat.as_ptr(), flat.len() as i32,
