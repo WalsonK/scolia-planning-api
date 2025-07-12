@@ -3,7 +3,7 @@ use rand::Rng;
 use crate::basic_function::{reconstruct_subarray, reconstruct_vec};
 
 #[unsafe(no_mangle)]
-pub extern "C" fn min_conflicts_planning(
+pub extern "C" fn generate_min_conflicts_planning(
     total_slot: i32, slot_minutes: i32,
     subjects: *const f32, subjects_len: i32,
     todo: *const f32, todo_len: i32,
@@ -34,7 +34,17 @@ pub extern "C" fn min_conflicts_planning(
     }
 
     // 3. Recherche
-    for _ in 0..1000 {
+    schedule = min_conflict(&mut schedule, &all_subjects,&all_unavailability, &slot_todo, 1000);
+
+    // return schedule
+    let ptr= schedule.as_ptr();
+    mem::forget(schedule);
+    ptr
+}
+
+pub fn min_conflict(schedule: &mut Vec<i32>, subjects: &Vec<f32>,all_unavailability: &Vec<Vec<f32>>, slot_todo: &Vec<i32>, iteration: usize) -> Vec<i32>{
+    let mut rng = rand::rng();
+    for _ in 0..iteration {
         // 3.1 count conflict if == 0 then break
         let (conflict_count, conflict_index) = get_conflict(schedule.clone(), all_unavailability.clone(), slot_todo.clone());
         if conflict_count != 0 {
@@ -47,7 +57,7 @@ pub extern "C" fn min_conflicts_planning(
             let mut min_conflicts_count = conflict_count;
             let mut tied_values = Vec::new(); // Pour gérer les égalités, on choisit aléatoirement parmi elles
 
-            let mut possible_subjects: Vec<i32> =  all_subjects.iter().map(|&s| s as i32).collect();
+            let mut possible_subjects: Vec<i32> =  subjects.iter().map(|&s| s as i32).collect();
             possible_subjects.push(-1);
 
             for subject_index in 0..possible_subjects.len() {
@@ -79,10 +89,7 @@ pub extern "C" fn min_conflicts_planning(
             schedule[conflict_pos] = chosen_value;
         }
     }
-    // return schedule
-    let ptr= schedule.as_ptr();
-    mem::forget(schedule);
-    ptr
+    schedule.clone()
 }
 
 fn get_conflict(schedule: Vec<i32>, unavailable: Vec<Vec<f32>>, todos: Vec<i32>) -> (i32, Vec<usize>) {
@@ -148,7 +155,7 @@ mod tests {
         let length: Vec<f32> = unavailable.iter().map(|inner_vec| inner_vec.len() as f32).collect();
         let flat: Vec<f32> = unavailable.into_iter().flatten().collect();
 
-        let data = min_conflicts_planning(7, 90,
+        let data = generate_min_conflicts_planning(7, 90,
                                             subjects.as_ptr(), subjects.len() as i32,
                                             todo.as_ptr(), todo.len() as i32,
                                             flat.as_ptr(), flat.len() as i32,
@@ -157,7 +164,6 @@ mod tests {
         let new_planning = arr_slice.iter().map(|&x| x).collect::<Vec<i32>>();
         let count_zeros_success = new_planning.iter().filter(|&&x| x == 0).count();
         free_planning(data);
-        println!("{:#?}", new_planning);
         assert_eq!(new_planning[1], -1, "La valeur à l'index 1 n'est pas 0.");
         assert!(count_zeros_success <= 4, "Le nombre de zéros n'est pas inférieur à 4.");
     }
