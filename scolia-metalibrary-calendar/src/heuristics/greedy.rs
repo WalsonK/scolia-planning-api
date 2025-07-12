@@ -1,5 +1,5 @@
 use std::mem;
-use crate::basic_function::{reconstruct_vec, reconstruct_subarray, free_planning};
+use crate::basic_function::{reconstruct_vec, reconstruct_subarray};
 #[unsafe(no_mangle)]
 pub extern "C" fn generate_greedy_planning(
     total_slot: i32, max_hours: i32, slot_minutes: i32,
@@ -66,6 +66,7 @@ pub fn greedy_schedule(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::basic_function::free_planning;
 
     #[test]
     fn generate_planning_test() {
