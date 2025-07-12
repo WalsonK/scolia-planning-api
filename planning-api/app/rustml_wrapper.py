@@ -12,11 +12,11 @@ class Rustml:
         current_dir = os.path.dirname(os.path.abspath(__file__))
 
         if sys.platform == "win32":
-            lib_path = os.path.join(current_dir, "librustlib.dll")
+            lib_path = os.path.join(current_dir, "libs/librustlib.dll")
         elif sys.platform == "darwin":
-            lib_path = os.path.join(current_dir, "librustlib.dylib")
+            lib_path = os.path.join(current_dir, "libs/librustlib.dylib")
         elif sys.platform == "linux":
-            lib_path = os.path.join(current_dir, "librustlib.so")
+            lib_path = os.path.join(current_dir, "libs/librustlib.so")
         else:
             raise Exception("Unsupported OS")
         

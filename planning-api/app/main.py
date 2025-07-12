@@ -4,7 +4,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from libs.rustml_wrapper import Rustml
+from rustml_wrapper import Rustml
 from db.session import *
 import basic_function as fn
 import models as models
