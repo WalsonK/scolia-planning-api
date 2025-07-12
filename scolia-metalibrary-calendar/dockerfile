@@ -9,6 +9,7 @@ RUN cargo fetch
 
 # Copie tout le code source et compile en mode release
 COPY . .
+RUN cargo clean
 RUN cargo build --release
 
 # Étape 2: La commande qui sera exécutée
