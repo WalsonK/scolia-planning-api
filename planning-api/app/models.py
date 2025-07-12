@@ -15,15 +15,16 @@ class UserRole(str, enum.Enum):
     TEACHER = "professeur"
     MANAGER = "gestionnaire"
 
-class Subject(BaseModel):
+class InputSubject(BaseModel):
     name: str
     teacher: str
     hours_todo: float
+    hours_done: float
     hours_total: float
     unavailable_periods: List[int]
 
     def create_empty(self):
-        return Subject(name="empty", teacher="", hours_todo=0.0, hours_total=0.0, unavailable_periods=[])
+        return InputSubject(name="empty", teacher="", hours_todo=0.0, hours_done=0.0, hours_total=0.0, unavailable_periods=[])
 
 class Room(BaseModel):
     name: str
@@ -34,10 +35,11 @@ class Params(BaseModel):
     slots_per_day: int
     days_per_week: int
     max_hours_per_week: int
+    algorithm: str = "greedy"
 
 class PlanningData(BaseModel):
     params: Params
-    subjects: List[Subject]
+    subjects: List[InputSubject]
     rooms: List[Room]
 
 

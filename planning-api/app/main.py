@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 
 from libs.rustml_wrapper import Rustml
 from db.session import *
-import basic_function as fn, models
+import basic_function as fn
+import models as models
 
 
 app = FastAPI()
@@ -95,7 +96,7 @@ def add_unvailable(name: str = None, slots: List[int] = []):
 
 
 @app.post("/generate_planning")
-def generate_greedy_planning(planning_data: models.PlanningData):
+def generate_planning(planning_data: models.PlanningData):
     """
     Endpoint to generate a greedy planning.
     - planning_data: JSON object containing :
@@ -105,24 +106,44 @@ def generate_greedy_planning(planning_data: models.PlanningData):
     """
     # Prepare data for Rust function
     subject_dict = {index: subject for index, subject in enumerate(planning_data.subjects)}
-    subject_dict[-1] = models.Subject.create_empty(models.Subject)
+    subject_dict[-1] = models.InputSubject.create_empty(models.InputSubject)
 
     total_slots = planning_data.params.slots_per_day * planning_data.params.days_per_week
     max_hours = planning_data.params.max_hours_per_week
     slot_minutes = 90
     subjects = list(subject_dict.keys())
-    todo = [subject.hours_todo for subject in planning_data.subjects]
-    unavailability = [subject.unavailable_periods for subject in planning_data.subjects]
+    todo = [subject_dict[i].hours_todo for i in subjects]
+    dones = [subject_dict[i].hours_done for i in subjects]
+    total = [subject_dict[i].hours_total for i in subjects]
+    unavailability = [subject_dict[i].unavailable_periods for i in subjects]
 
     # Generate planning using Rust function
-    resultat = rustml.generate_greedy_planning(
-        total_slots=total_slots,
-        max_hours=max_hours,
-        slot_minutes=slot_minutes,
-        subjects=subjects,
-        todo=todo,
-        unavailability=unavailability
-    )
+    if planning_data.params.algorithm == "greedy":
+        resultat = rustml.generate_greedy_planning(
+            total_slots=total_slots,
+            max_hours=max_hours,
+            slot_minutes=slot_minutes,
+            subjects=subjects,
+            todo=todo,
+            unavailability=unavailability
+        )
+    elif planning_data.params.algorithm == "greedy_mc":
+        resultat = rustml.generate_greedy_mc_planning(
+            total_slots=total_slots,
+            max_weekly_hours=max_hours,
+            slot_minutes=slot_minutes,
+            subjects=subjects, unavailability=unavailability,
+            hours_done=dones, all_hours=total
+        )
+    else:
+        # Greedy MC algorithm as default
+        resultat = rustml.generate_greedy_mc_planning(
+            total_slots=total_slots,
+            max_weekly_hours=max_hours,
+            slot_minutes=slot_minutes,
+            subjects=subjects, unavailability=unavailability,
+            hours_done=dones, all_hours=total
+        )
 
     # Pretify the result
     resultat = [subject_dict[i].name for i in resultat]

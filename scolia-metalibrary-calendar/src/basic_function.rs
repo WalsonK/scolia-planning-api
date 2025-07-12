@@ -3,6 +3,16 @@ pub extern "C" fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
+#[unsafe(no_mangle)]
+pub extern "C" fn free_planning(ptr: *const i32) {
+    if ptr.is_null() {
+        return;
+    }
+    unsafe {
+        let _ = Box::from_raw(ptr as *mut i32);
+    }
+}
+
 pub fn reconstruct_vec(arr: *const f32, len: i32) -> Vec<f32> {
     let arr_slice = unsafe { std::slice::from_raw_parts(arr, len as usize) };
     let array = arr_slice.iter().map(|&x| x).collect::<Vec<f32>>();
