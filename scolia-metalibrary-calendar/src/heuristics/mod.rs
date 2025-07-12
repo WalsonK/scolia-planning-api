@@ -1,2 +1,2 @@
 pub mod greedy;
-mod minconflicts;
+pub mod min_conflicts;

@@ -34,7 +34,7 @@ pub extern "C" fn generate_min_conflicts_planning(
     }
 
     // 3. Recherche
-    schedule = min_conflict(&mut schedule, &all_subjects,&all_unavailability, &slot_todo, 1000);
+    schedule = min_conflict_schedule(&mut schedule, &all_subjects, &all_unavailability, &slot_todo, 1000);
 
     // return schedule
     let ptr= schedule.as_ptr();
@@ -42,7 +42,7 @@ pub extern "C" fn generate_min_conflicts_planning(
     ptr
 }
 
-pub fn min_conflict(schedule: &mut Vec<i32>, subjects: &Vec<f32>,all_unavailability: &Vec<Vec<f32>>, slot_todo: &Vec<i32>, iteration: usize) -> Vec<i32>{
+pub fn min_conflict_schedule(schedule: &mut Vec<i32>, subjects: &Vec<f32>, all_unavailability: &Vec<Vec<f32>>, slot_todo: &Vec<i32>, iteration: usize) -> Vec<i32>{
     let mut rng = rand::rng();
     for _ in 0..iteration {
         // 3.1 count conflict if == 0 then break
@@ -52,7 +52,6 @@ pub fn min_conflict(schedule: &mut Vec<i32>, subjects: &Vec<f32>,all_unavailabil
             let random_index = rng.random_range(0..conflict_count as usize);
 
             let conflict_pos = conflict_index[random_index];
-            let mut chosen_value = schedule[conflict_pos];
             let mut best_value_for_chosen_variable = schedule[random_index];
             let mut min_conflicts_count = conflict_count;
             let mut tied_values = Vec::new(); // Pour gérer les égalités, on choisit aléatoirement parmi elles
@@ -81,12 +80,10 @@ pub fn min_conflict(schedule: &mut Vec<i32>, subjects: &Vec<f32>,all_unavailabil
             }
             if tied_values.len() > 0 {
                 let random_i = rng.random_range(0..tied_values.len());
-                chosen_value = tied_values[random_i];
+                schedule[conflict_pos] = tied_values[random_i];
             }else {
-                chosen_value = best_value_for_chosen_variable;
+                schedule[conflict_pos] = best_value_for_chosen_variable;
             }
-
-            schedule[conflict_pos] = chosen_value;
         }
     }
     schedule.clone()
